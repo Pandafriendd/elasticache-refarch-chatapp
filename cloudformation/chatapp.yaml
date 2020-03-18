@@ -28,11 +28,14 @@ Parameters:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: Must be the name of an existing EC2 KeyPair.
+
 Outputs:
   ApplicationUrl:
     Description: The URL to the load balancer for the application
     Value: !GetAtt ChatEnvironment.EndpointURL
+
 Resources:
+
   RedisCluster:
     Type: AWS::ElastiCache::CacheCluster
     Properties:
@@ -41,10 +44,12 @@ Resources:
       - !GetAtt CacheSecurityGroup.GroupId
       Engine: redis
       NumCacheNodes: 1
+
   CacheSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Cache security group
+
   CacheSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -53,10 +58,12 @@ Resources:
       FromPort: !GetAtt RedisCluster.RedisEndpoint.Port
       ToPort: !GetAtt RedisCluster.RedisEndpoint.Port
       SourceSecurityGroupId: !GetAtt ApplicationSecurityGroup.GroupId
+
   ChatApplication:
     Type: AWS::ElasticBeanstalk::Application
     Properties:
       Description: AWS Elastic Beanstalk Chat Application
+
   ChatApplicationVersion:
     Type: AWS::ElasticBeanstalk::ApplicationVersion
     Properties:
@@ -65,6 +72,7 @@ Resources:
       SourceBundle:
         S3Bucket: elasticache-refarch-chatapp
         S3Key: chatapp.zip
+
   ChatConfigurationTemplate:
     Type: AWS::ElasticBeanstalk::ConfigurationTemplate
     Properties:
@@ -117,6 +125,7 @@ Resources:
       - Namespace: aws:elasticbeanstalk:container:nodejs
         OptionName: ProxyServer
         Value: nginx
+
   ChatEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
     Properties:
@@ -124,10 +133,12 @@ Resources:
       Description: AWS ElasticBeanstalk Chat Environment
       TemplateName: !Ref ChatConfigurationTemplate
       VersionLabel: !Ref ChatApplicationVersion
+
   ApplicationSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Application security group
+
   ApplicationSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -136,10 +147,12 @@ Resources:
       FromPort: 80
       ToPort: 80
       SourceSecurityGroupId: !GetAtt LoadBalancerSecurityGroup.GroupId
+
   LoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Load balancer security group
+      
   LoadBalancerSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
